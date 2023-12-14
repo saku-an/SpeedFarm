@@ -30,6 +30,7 @@ public class Plant : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // when plant gets watered
         if (!_ded && !FullyGrown && collision.CompareTag("WaterTrigger"))
         {
             if (!_isWatered)
@@ -55,18 +56,19 @@ public class Plant : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    // Start is called before the first frame update
+    
     void Start()
     {
         
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         
     }
 
+    // Plant grows as long as it is watered
     private IEnumerator GrowthTimer()
     {
         for (int i  = 0; i < _growthStages.Length-1; i++)
@@ -83,6 +85,7 @@ public class Plant : MonoBehaviour
         OnNotWatered?.Invoke(transform.position);
     }
 
+    // How long plant stays watered
     private IEnumerator WaterTimer()
     {
         yield return new WaitForSeconds(_waterTime);
@@ -91,6 +94,7 @@ public class Plant : MonoBehaviour
         _deathTimer = StartCoroutine(DeathTimer());
     }
 
+    // How long after not being watered the plant dies
     private IEnumerator DeathTimer()
     {
         yield return new WaitForSeconds(_deathTime);

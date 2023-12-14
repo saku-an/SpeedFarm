@@ -7,20 +7,25 @@ using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] float _moveSpeed;
+    [SerializeField] public float MoveSpeed;
     [SerializeField] int _waterCanMax;
     [SerializeField] Grid _grid;
     [SerializeField] GameObject _soil;
     [SerializeField] GameObject _waterTrigger;
     [SerializeField] GameObject _highlight;
     [SerializeField] GameObject[] _plantPrefabs;
+    [HideInInspector]public InputAction MoveAction;
+    [HideInInspector] public Rigidbody2D Rb;
+    [HideInInspector] public Animator PlayerAnim;
+    [HideInInspector] public Vector3 FacingDir;
+
     private PlayerInput _playerInput;
-    private InputAction _moveAction;
-    private Rigidbody2D _rb;
-    private Animator _playerAnim;
+    [HideInInspector] public IPlayerState CurrentState;
+    [HideInInspector] public PlayerIdleState IdleState;
+    [HideInInspector] public PlayerAttackState AttackState;
+    [HideInInspector] public PlayerWateringState WateringState;
 
     private bool _isWatering;
-    private Vector3 _facingDir;
     private int _money;
     private int _selectedSeed;
     private int _waterInCan;
@@ -39,72 +44,46 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
-        _moveAction = _playerInput.actions["Move"];
-        _rb = GetComponent<Rigidbody2D>();
-        _playerAnim = GetComponentInChildren<Animator>();
-        _facingDir = Vector3.left;
+        MoveAction = _playerInput.actions["Move"];
+        Rb = GetComponent<Rigidbody2D>();
+        PlayerAnim = GetComponentInChildren<Animator>();
+        FacingDir = Vector3.left;
         _waterInCan = _waterCanMax;
+
+        IdleState = new PlayerIdleState(this);
+        AttackState = new PlayerAttackState(this);
+        WateringState = new PlayerWateringState(this);
+        CurrentState = IdleState;
     }
 
-    // Start is called before the first frame update
+    
     void Start()
     {
         
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
+        // Highlights the tile in front of the player
         Vector3 posOnGrid = _grid.LocalToCell(transform.position);
-        Vector3 highlightPos = posOnGrid + new Vector3(0.5f, 0.5f, 0) + _facingDir;
+        Vector3 highlightPos = posOnGrid + new Vector3(0.5f, 0.5f, 0) + FacingDir;
         _highlight.transform.position = highlightPos;
     }
 
     private void FixedUpdate()
     {
-        if (_isWatering)
-        {
-            _rb.velocity = Vector2.zero;
-            return;
-        }
-
-        Vector2 move = _moveAction.ReadValue<Vector2>();
-        _playerAnim.SetFloat("X", move.x);
-        _playerAnim.SetFloat("Y", move.y);
-
-        if (move == Vector2.zero)
-        {
-            _playerAnim.SetTrigger("Idle");
-            _rb.velocity = Vector2.zero;
-            return;
-        }
-
-
-        if (Math.Abs(move.y) > Math.Abs(move.x))
-        {
-            if (move.y > 0)
-                _facingDir = Vector3.up;
-            else
-                _facingDir = Vector3.down;
-        }
-        else
-        {
-            if (move.x > 0)
-                _facingDir = Vector3.right;
-            else
-                _facingDir = Vector3.left;
-        }
-
-        //_rb.position += _moveSpeed * _moveAction.ReadValue<Vector2>() * Time.deltaTime;
-        _rb.velocity = _moveSpeed * move;
+        CurrentState.UpdateState();
     }
 
 
-
+    // Player using watering can
+    // Either depletes the water or fills the can, if there is a water source nearby
     public void Water(InputAction.CallbackContext context)
     {
         if (context.performed && !_isWatering)
         {
+            CurrentState.Water();
             List<Collider2D> colliders = CollidersOnHighlight();
             foreach (Collider2D collider in colliders)
             {
@@ -113,7 +92,7 @@ public class Player : MonoBehaviour
                     _waterInCan = _waterCanMax;
                     OnWaterInCanChanged?.Invoke(_waterInCan, _waterCanMax);
                     _isWatering = true;
-                    _playerAnim.SetTrigger("Watering");
+                    PlayerAnim.SetTrigger("Watering");
 
                     return;
                 }
@@ -123,7 +102,7 @@ public class Player : MonoBehaviour
                 _waterInCan--;
                 OnWaterInCanChanged?.Invoke(_waterInCan, _waterCanMax);
                 _isWatering = true;
-                _playerAnim.SetTrigger("Watering");
+                PlayerAnim.SetTrigger("Watering");
 
 
                 GameObject water = Instantiate(_waterTrigger, _highlight.transform.position, Quaternion.identity);
@@ -132,6 +111,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Player interacting with the world
+    // Picks up a grown crop or
+    // destroys a dead crop
     public void Interact(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -160,6 +142,8 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Player sowing
+    // Plants a seed if there isn't a crop already
     public void Sow(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -173,6 +157,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Selects the next available seed which is used in sowing
     public void SwitchSeed(InputAction.CallbackContext context)
     {
         if (context.performed)

@@ -1218,7 +1218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a068a0eaedaa642469f4e9c989d885b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 5
+  MoveSpeed: 5
   _waterCanMax: 10
   _grid: {fileID: 233621770}
   _soil: {fileID: 442977208}
@@ -1228,6 +1228,18 @@ MonoBehaviour:
   - {fileID: 106055359717647531, guid: 2076b9649e1349141bfd33e85755a526, type: 3}
   - {fileID: 3523213456880723767, guid: ece9544dd870d1f45a232f2f2eca25bd, type: 3}
   - {fileID: 9043656782302756134, guid: 155b6a6d1e667b24e9f0684238e399b2, type: 3}
+  MoveAction:
+    m_Name: Move
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 7d42e42a-e20c-4e3a-94ef-923d1705a91b
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  Rb: {fileID: 0}
+  PlayerAnim: {fileID: 0}
+  FacingDir: {x: 0, y: 0, z: 0}
 --- !u!50 &338287514
 Rigidbody2D:
   serializedVersion: 4
