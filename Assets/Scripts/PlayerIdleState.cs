@@ -12,6 +12,7 @@ public class PlayerIdleState : IPlayerState
         _player = player;
     }
 
+    // Player movement happens here
     public void UpdateState()
     {
         Vector2 move = _player.MoveAction.ReadValue<Vector2>();

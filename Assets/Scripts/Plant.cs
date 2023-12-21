@@ -81,7 +81,7 @@ public class Plant : MonoBehaviour
         if (_deathTimer != null)
             StopCoroutine(_deathTimer);
         if (_waterTimer != null)
-            StopCoroutine(WaterTimer());
+            StopCoroutine(_waterTimer);
         OnNotWatered?.Invoke(transform.position);
     }
 

@@ -1219,11 +1219,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MoveSpeed: 5
-  _waterCanMax: 10
+  WaterCanMax: 10
   _grid: {fileID: 233621770}
   _soil: {fileID: 442977208}
-  _waterTrigger: {fileID: 1433497743657099131, guid: 4c87070c56f71d540908d1a53f5dcd5c, type: 3}
-  _highlight: {fileID: 480567821}
+  WaterTrigger: {fileID: 1433497743657099131, guid: 4c87070c56f71d540908d1a53f5dcd5c, type: 3}
+  Highlight: {fileID: 480567821}
   _plantPrefabs:
   - {fileID: 106055359717647531, guid: 2076b9649e1349141bfd33e85755a526, type: 3}
   - {fileID: 3523213456880723767, guid: ece9544dd870d1f45a232f2f2eca25bd, type: 3}

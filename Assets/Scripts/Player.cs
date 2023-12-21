@@ -8,13 +8,13 @@ using UnityEngine.Tilemaps;
 public class Player : MonoBehaviour
 {
     [SerializeField] public float MoveSpeed;
-    [SerializeField] int _waterCanMax;
+    [SerializeField] public int WaterCanMax;
     [SerializeField] Grid _grid;
     [SerializeField] GameObject _soil;
-    [SerializeField] GameObject _waterTrigger;
-    [SerializeField] GameObject _highlight;
+    [SerializeField] public GameObject WaterTrigger;
+    [SerializeField] public GameObject Highlight;
     [SerializeField] GameObject[] _plantPrefabs;
-    [HideInInspector]public InputAction MoveAction;
+    [HideInInspector] public InputAction MoveAction;
     [HideInInspector] public Rigidbody2D Rb;
     [HideInInspector] public Animator PlayerAnim;
     [HideInInspector] public Vector3 FacingDir;
@@ -25,17 +25,25 @@ public class Player : MonoBehaviour
     [HideInInspector] public PlayerAttackState AttackState;
     [HideInInspector] public PlayerWateringState WateringState;
 
-    private bool _isWatering;
     private int _money;
     private int _selectedSeed;
     private int _waterInCan;
 
-    public bool IsWatering { get => _isWatering; set => _isWatering = value; }
+    public int WaterInCan
+    {
+        get => _waterInCan;
+        set
+        {
+            _waterInCan = value;
+            OnWaterInCanChanged?.Invoke(_waterInCan, WaterCanMax);
+        }
+    }
+
     public enum Direction
     {
         Up, Down, Left, Right
     }
-    public Dictionary<Direction, Vector3> dirToVector = new Dictionary<Direction, Vector3>();
+    public Dictionary<Direction, Vector3> DirToVector = new Dictionary<Direction, Vector3>();
 
     public static event Action<Sprite> OnSeedChanged;
     public static event Action<int> OnMoneyChanged;
@@ -48,7 +56,7 @@ public class Player : MonoBehaviour
         Rb = GetComponent<Rigidbody2D>();
         PlayerAnim = GetComponentInChildren<Animator>();
         FacingDir = Vector3.left;
-        _waterInCan = _waterCanMax;
+        WaterInCan = WaterCanMax;
 
         IdleState = new PlayerIdleState(this);
         AttackState = new PlayerAttackState(this);
@@ -68,7 +76,7 @@ public class Player : MonoBehaviour
         // Highlights the tile in front of the player
         Vector3 posOnGrid = _grid.LocalToCell(transform.position);
         Vector3 highlightPos = posOnGrid + new Vector3(0.5f, 0.5f, 0) + FacingDir;
-        _highlight.transform.position = highlightPos;
+        Highlight.transform.position = highlightPos;
     }
 
     private void FixedUpdate()
@@ -78,40 +86,15 @@ public class Player : MonoBehaviour
 
 
     // Player using watering can
-    // Either depletes the water or fills the can, if there is a water source nearby
     public void Water(InputAction.CallbackContext context)
     {
-        if (context.performed && !_isWatering)
+        if (context.performed)
         {
             CurrentState.Water();
-            List<Collider2D> colliders = CollidersOnHighlight();
-            foreach (Collider2D collider in colliders)
-            {
-                if (collider.CompareTag("WaterSource"))
-                {
-                    _waterInCan = _waterCanMax;
-                    OnWaterInCanChanged?.Invoke(_waterInCan, _waterCanMax);
-                    _isWatering = true;
-                    PlayerAnim.SetTrigger("Watering");
-
-                    return;
-                }
-            }
-            if (_waterInCan > 0)
-            {
-                _waterInCan--;
-                OnWaterInCanChanged?.Invoke(_waterInCan, _waterCanMax);
-                _isWatering = true;
-                PlayerAnim.SetTrigger("Watering");
-
-
-                GameObject water = Instantiate(_waterTrigger, _highlight.transform.position, Quaternion.identity);
-                Destroy(water, 0.5f);
-            }
         }
     }
 
-    // Player interacting with the world
+    // Player pressing the interact button
     // Picks up a grown crop or
     // destroys a dead crop
     public void Interact(InputAction.CallbackContext context)
@@ -149,10 +132,10 @@ public class Player : MonoBehaviour
         if (context.performed)
         {
             Tilemap soilTilemap = _soil.GetComponent<Tilemap>();
-            if (soilTilemap.HasTile(soilTilemap.LocalToCell(_highlight.transform.position)))
+            if (soilTilemap.HasTile(soilTilemap.LocalToCell(Highlight.transform.position)))
             {
                 if (CollidersOnHighlight().Count == 0)
-                    Instantiate(_plantPrefabs[_selectedSeed], _highlight.transform.position, Quaternion.identity);
+                    Instantiate(_plantPrefabs[_selectedSeed], Highlight.transform.position, Quaternion.identity);
             }
         }
     }
@@ -168,10 +151,11 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Returns all the colliders at currently highlighted tile
     public List<Collider2D> CollidersOnHighlight()
     {
         List<Collider2D> colliders = new List<Collider2D>();
-        Physics2D.OverlapCollider(_highlight.GetComponent<BoxCollider2D>(), new ContactFilter2D().NoFilter(), colliders);
+        Physics2D.OverlapCollider(Highlight.GetComponent<BoxCollider2D>(), new ContactFilter2D().NoFilter(), colliders);
         return colliders;
     }
 }

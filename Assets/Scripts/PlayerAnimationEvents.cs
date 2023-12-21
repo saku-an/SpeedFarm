@@ -5,20 +5,22 @@ using UnityEngine;
 public class PlayerAnimationEvents : MonoBehaviour
 {
     Player _player;
-    // Start is called before the first frame update
+    
     void Start()
     {
         _player = GetComponentInParent<Player>();
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         
     }
 
+    // Called on the last frame of the watering animation
     public void EndWatering()
     {
-        _player.IsWatering = false;
+        _player.CurrentState = _player.IdleState;
+        _player.CurrentState.EnterState();
     }
 }
