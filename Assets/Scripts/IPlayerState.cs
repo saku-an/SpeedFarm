@@ -7,5 +7,6 @@ public interface IPlayerState
     void UpdateState();
     void EnterState();
     void Water();
+    void Attack();
     
 }

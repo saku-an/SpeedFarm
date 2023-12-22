@@ -23,4 +23,11 @@ public class PlayerAnimationEvents : MonoBehaviour
         _player.CurrentState = _player.IdleState;
         _player.CurrentState.EnterState();
     }
+
+    // Called on the last frame of the attack animation
+    public void EndAttack()
+    {
+        _player.CurrentState = _player.IdleState;
+        _player.CurrentState.EnterState();
+    }
 }

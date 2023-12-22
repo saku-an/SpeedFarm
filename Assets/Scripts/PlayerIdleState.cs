@@ -55,4 +55,10 @@ public class PlayerIdleState : IPlayerState
         _player.CurrentState = _player.WateringState;
         _player.CurrentState.EnterState();
     }
+
+    public void Attack()
+    {
+        _player.CurrentState = _player.AttackState;
+        _player.CurrentState.EnterState();
+    }
 }

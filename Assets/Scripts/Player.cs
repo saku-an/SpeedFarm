@@ -151,6 +151,14 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void Attack(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            CurrentState.Attack();
+        }
+    }
+
     // Returns all the colliders at currently highlighted tile
     public List<Collider2D> CollidersOnHighlight()
     {

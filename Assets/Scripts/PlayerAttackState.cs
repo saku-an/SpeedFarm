@@ -18,10 +18,16 @@ public class PlayerAttackState : IPlayerState
 
     public void EnterState()
     {
-
+        _player.Rb.velocity = Vector2.zero;
+        _player.PlayerAnim.SetTrigger("Attack");
     }
 
     public void Water()
+    {
+
+    }
+
+    public void Attack()
     {
 
     }

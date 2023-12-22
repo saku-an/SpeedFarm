@@ -53,4 +53,9 @@ public class PlayerWateringState : IPlayerState
     {
 
     }
+
+    public void Attack()
+    {
+
+    }
 }
