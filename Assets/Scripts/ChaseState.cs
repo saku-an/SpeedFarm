@@ -1,3 +1,4 @@
+using Pathfinding;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +20,9 @@ public class ChaseState : IEnemyState
 
     public void EnterState()
     {
+        _enemy.Target = Plant.GrowingPlants[0];
+        _enemy.GetComponent<AIDestinationSetter>().target = _enemy.Target;
 
+        _enemy.EnemyAnim.SetBool("Walking", true);
     }
 }

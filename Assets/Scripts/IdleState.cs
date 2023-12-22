@@ -1,3 +1,4 @@
+using Pathfinding;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,7 +22,7 @@ public class IdleState : IEnemyState
 
     public void EnterState()
     {
-        //_idleTimer = _enemy.StartCoroutine(IdleTimer());
+        _idleTimer = _enemy.StartCoroutine(IdleTimer());
     }
 
     private IEnumerator IdleTimer()
@@ -29,7 +30,19 @@ public class IdleState : IEnemyState
         while (true)
         {
             yield return new WaitForSeconds(1f);
-            Debug.Log("heh");
+            SearchForPlants();
+        }
+    }
+
+    // Searches for plants, if found enter chase state
+    private void SearchForPlants()
+    {
+        if (Plant.GrowingPlants.Count > 0)
+        {
+            _enemy.StopCoroutine(_idleTimer);
+
+            _enemy.CurrentState = _enemy.ChaseState;
+            _enemy.CurrentState.EnterState();
         }
     }
 }

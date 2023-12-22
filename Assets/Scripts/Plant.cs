@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Plant : MonoBehaviour
 {
+    public static List<Transform> GrowingPlants = new List<Transform>();
+
     public Sprite SeedIcon;
     [SerializeField] private Sprite[] _growthStages;
     [SerializeField] private float _growthTime;
@@ -26,6 +28,7 @@ public class Plant : MonoBehaviour
 
     public static event Action<Vector3> OnWatered;
     public static event Action<Vector3> OnNotWatered;
+    public static event Action<Transform> OnPlantDestroyed;
 
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -105,6 +108,8 @@ public class Plant : MonoBehaviour
     {
         _currentStage = Mathf.Min(_currentStage + 1, _growthStages.Length - 1);
         _spriteRenderer.sprite = _growthStages[_currentStage];
+        if (_currentStage == 1)
+            GrowingPlants.Add(this.transform);
         Debug.Log("Stage: " + _currentStage);
     }
 
@@ -114,5 +119,11 @@ public class Plant : MonoBehaviour
         _spriteRenderer.color = new Color(70/255f, 70/255f, 70/255f);
         _ded = true;
         Debug.Log("ded");
+    }
+
+    private void OnDestroy()
+    {
+        GrowingPlants.Remove(this.transform);
+        OnPlantDestroyed?.Invoke(this.transform);
     }
 }
